@@ -7,8 +7,8 @@ import {
 } from 'recharts';
 import {
   Wifi, TrendingUp, DollarSign, Clock, Zap, Building2,
-  ChevronDown, Download, RefreshCw, ArrowRight, CheckCircle2,
-  Activity, Globe, Layers, AlertCircle,
+  ChevronDown, Download, RefreshCw, CheckCircle2,
+  Activity, Globe, Layers,
 } from 'lucide-react';
 import { calculateROI, getIndustryDefaults, formatCurrency, CalculatorInputs, ROIResults } from '@/lib/calculations';
 
@@ -32,12 +32,12 @@ const DEFAULT_INPUTS: CalculatorInputs = {
   newRevenueOpportunity: 12,
 };
 
-const PIE_COLORS = ['#6366f1', '#34d399', '#f59e0b', '#f43f5e'];
+const PIE_COLORS = ['#6366f1', '#10b981', '#f59e0b', '#f43f5e'];
 
 function NumberInput({ label, value, onChange, prefix = '', suffix = '', min = 0, step = 1, hint }: any) {
   return (
     <div>
-      <label className="label">{label}{hint && <span className="text-slate-600 ml-1">({hint})</span>}</label>
+      <label className="label">{label}{hint && <span className="text-slate-400 ml-1">({hint})</span>}</label>
       <div className="relative flex items-center">
         {prefix && <span className="absolute left-3 text-slate-400 text-sm pointer-events-none">{prefix}</span>}
         <input
@@ -59,7 +59,7 @@ function SliderInput({ label, value, onChange, min = 0, max = 100, step = 1, suf
     <div>
       <div className="flex justify-between items-center mb-1">
         <label className="label mb-0">{label}</label>
-        <span className="text-indigo-400 font-semibold text-sm">{value}{suffix}</span>
+        <span className="text-indigo-600 font-semibold text-sm">{value}{suffix}</span>
       </div>
       <input
         type="range"
@@ -67,28 +67,34 @@ function SliderInput({ label, value, onChange, min = 0, max = 100, step = 1, suf
         min={min} max={max} step={step} value={value}
         onChange={e => onChange(parseFloat(e.target.value))}
       />
-      <div className="flex justify-between text-xs text-slate-600 mt-0.5">
+      <div className="flex justify-between text-xs text-slate-400 mt-0.5">
         <span>{min}{suffix}</span><span>{max}{suffix}</span>
       </div>
     </div>
   );
 }
 
-function MetricCard({ label, value, sub, icon: Icon, color = 'indigo', positive }: any) {
+function MetricCard({ label, value, sub, icon: Icon, color = 'indigo' }: any) {
   const colors: Record<string, string> = {
-    indigo: 'from-indigo-600/20 to-indigo-900/10 border-indigo-500/20 text-indigo-400',
-    green:  'from-emerald-600/20 to-emerald-900/10 border-emerald-500/20 text-emerald-400',
-    amber:  'from-amber-600/20 to-amber-900/10 border-amber-500/20 text-amber-400',
-    rose:   'from-rose-600/20 to-rose-900/10 border-rose-500/20 text-rose-400',
+    indigo: 'from-indigo-50 to-indigo-100/60 border-indigo-200 text-indigo-600',
+    green:  'from-emerald-50 to-emerald-100/60 border-emerald-200 text-emerald-600',
+    amber:  'from-amber-50 to-amber-100/60 border-amber-200 text-amber-600',
+    rose:   'from-rose-50 to-rose-100/60 border-rose-200 text-rose-600',
+  };
+  const textColors: Record<string, string> = {
+    indigo: 'text-indigo-900',
+    green:  'text-emerald-900',
+    amber:  'text-amber-900',
+    rose:   'text-rose-900',
   };
   return (
     <div className={`rounded-2xl p-4 bg-gradient-to-br ${colors[color]} border animate-slide-up`}>
       <div className="flex items-center gap-2 mb-2">
         <Icon size={16} className="opacity-70" />
-        <span className="text-xs text-slate-400">{label}</span>
+        <span className="text-xs text-slate-500">{label}</span>
       </div>
-      <div className="text-2xl font-bold text-white">{value}</div>
-      {sub && <div className="text-xs text-slate-500 mt-0.5">{sub}</div>}
+      <div className={`text-2xl font-bold ${textColors[color]}`}>{value}</div>
+      {sub && <div className="text-xs text-slate-400 mt-0.5">{sub}</div>}
     </div>
   );
 }
@@ -96,13 +102,13 @@ function MetricCard({ label, value, sub, icon: Icon, color = 'indigo', positive 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="glass rounded-xl p-3 border border-indigo-500/20 text-sm">
-      <p className="font-medium text-white mb-2">{label}</p>
+    <div className="bg-white rounded-xl p-3 border border-slate-200 shadow-lg text-sm">
+      <p className="font-medium text-slate-800 mb-2">{label}</p>
       {payload.map((p: any, i: number) => (
         <div key={i} className="flex items-center gap-2">
           <div className="w-2.5 h-2.5 rounded-full" style={{ background: p.color }} />
-          <span className="text-slate-400">{p.name}:</span>
-          <span className="text-white font-medium">{formatCurrency(p.value)}</span>
+          <span className="text-slate-500">{p.name}:</span>
+          <span className="text-slate-800 font-medium">{formatCurrency(p.value)}</span>
         </div>
       ))}
     </div>
@@ -139,15 +145,12 @@ export default function Calculator() {
     const { jsPDF } = await import('jspdf');
     const { default: autoTable } = await import('jspdf-autotable');
     const doc = new jsPDF();
-
     doc.setFontSize(20);
-    doc.setTextColor(99, 102, 241);
+    doc.setTextColor(79, 70, 229);
     doc.text('5G ROI Calculator Report', 20, 20);
-
     doc.setFontSize(10);
     doc.setTextColor(100);
     doc.text(`Generated: ${new Date().toLocaleDateString()} | Industry: ${inputs.industry}`, 20, 30);
-
     autoTable(doc, {
       startY: 40,
       head: [['Metric', 'Value']],
@@ -163,36 +166,35 @@ export default function Calculator() {
         ['5-Year Net Benefit', formatCurrency(results.fiveYearNetBenefit)],
         ['Net Present Value', formatCurrency(results.netPresentValue)],
       ],
-      headStyles: { fillColor: [99, 102, 241] },
+      headStyles: { fillColor: [79, 70, 229] },
     });
-
     doc.save('5g-roi-report.pdf');
   };
 
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <header className="border-b border-[#2a2a45] sticky top-0 z-50" style={{ background: 'rgba(15,15,26,0.95)', backdropFilter: 'blur(12px)' }}>
+      <header className="border-b border-slate-200 sticky top-0 z-50 bg-white/95 backdrop-blur-md shadow-sm">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-md">
               <Wifi size={16} className="text-white" />
             </div>
             <div>
-              <div className="font-bold text-white text-sm">5G ROI Calculator</div>
-              <div className="text-xs text-slate-500">DappleSoft</div>
+              <div className="font-bold text-slate-800 text-sm">5G ROI Calculator</div>
+              <div className="text-xs text-slate-400">DappleSoft</div>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <button
               onClick={() => setInputs(DEFAULT_INPUTS)}
-              className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition px-3 py-1.5 rounded-lg hover:bg-white/5"
+              className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-800 transition px-3 py-1.5 rounded-lg hover:bg-slate-100"
             >
               <RefreshCw size={12} /> Reset
             </button>
             <button
               onClick={handleExportPDF}
-              className="flex items-center gap-1.5 text-xs bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg transition font-medium"
+              className="flex items-center gap-1.5 text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg transition font-medium shadow-sm"
             >
               <Download size={12} /> Export PDF
             </button>
@@ -201,22 +203,22 @@ export default function Calculator() {
       </header>
 
       {/* Hero */}
-      <div className="relative overflow-hidden py-14 px-4">
+      <div className="relative overflow-hidden py-14 px-4 bg-gradient-to-br from-indigo-50 via-white to-emerald-50">
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-40 -left-40 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl" />
-          <div className="absolute -top-20 right-20 w-64 h-64 bg-purple-600/10 rounded-full blur-3xl" />
-          <div className="absolute top-10 left-1/2 w-[800px] h-[2px] bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent" />
+          <div className="absolute -top-40 -left-40 w-96 h-96 bg-indigo-200/30 rounded-full blur-3xl" />
+          <div className="absolute -top-20 right-20 w-64 h-64 bg-purple-200/20 rounded-full blur-3xl" />
+          <div className="absolute top-10 left-1/2 w-[800px] h-[2px] bg-gradient-to-r from-transparent via-indigo-300/40 to-transparent" />
         </div>
         <div className="max-w-3xl mx-auto text-center relative">
-          <div className="inline-flex items-center gap-2 text-xs font-medium bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 px-3 py-1.5 rounded-full mb-5">
+          <div className="inline-flex items-center gap-2 text-xs font-medium bg-indigo-100 border border-indigo-200 text-indigo-600 px-3 py-1.5 rounded-full mb-5">
             <Zap size={11} /> Enterprise 5G Financial Analysis
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight text-slate-900">
             Calculate Your{' '}
             <span className="gradient-text">5G Investment</span>{' '}
             Return
           </h1>
-          <p className="text-slate-400 text-lg max-w-xl mx-auto">
+          <p className="text-slate-500 text-lg max-w-xl mx-auto">
             Get accurate ROI projections, payback analysis, and 5-year financial forecasts
             tailored to your industry.
           </p>
@@ -224,7 +226,7 @@ export default function Calculator() {
       </div>
 
       {/* Main Grid */}
-      <div className="max-w-7xl mx-auto px-4 pb-20">
+      <div className="max-w-7xl mx-auto px-4 pb-20 -mt-2">
         <div className="grid grid-cols-1 xl:grid-cols-[480px_1fr] gap-6">
 
           {/* ── LEFT: Inputs ── */}
@@ -233,8 +235,8 @@ export default function Calculator() {
             {/* Company Profile */}
             <div className="card glow-border">
               <div className="flex items-center gap-2 mb-4">
-                <Building2 size={16} className="text-indigo-400" />
-                <h2 className="font-semibold text-white text-sm">Company Profile</h2>
+                <Building2 size={16} className="text-indigo-500" />
+                <h2 className="font-semibold text-slate-700 text-sm">Company Profile</h2>
               </div>
               <div className="space-y-4">
                 <div>
@@ -261,8 +263,8 @@ export default function Calculator() {
             {/* Current Network */}
             <div className="card glow-border">
               <div className="flex items-center gap-2 mb-4">
-                <Globe size={16} className="text-amber-400" />
-                <h2 className="font-semibold text-white text-sm">Current Network</h2>
+                <Globe size={16} className="text-amber-500" />
+                <h2 className="font-semibold text-slate-700 text-sm">Current Network</h2>
               </div>
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
@@ -279,8 +281,8 @@ export default function Calculator() {
             {/* 5G Investment */}
             <div className="card glow-border">
               <div className="flex items-center gap-2 mb-4">
-                <DollarSign size={16} className="text-emerald-400" />
-                <h2 className="font-semibold text-white text-sm">5G Investment Plan</h2>
+                <DollarSign size={16} className="text-emerald-500" />
+                <h2 className="font-semibold text-slate-700 text-sm">5G Investment Plan</h2>
               </div>
               <div className="space-y-4">
                 <NumberInput label="Implementation Cost" value={inputs.implementationCost} onChange={set('implementationCost')} prefix="$" step={10000} />
@@ -294,10 +296,10 @@ export default function Calculator() {
             {/* Expected Improvements */}
             <div className="card glow-border">
               <div className="flex items-center gap-2 mb-1">
-                <TrendingUp size={16} className="text-indigo-400" />
-                <h2 className="font-semibold text-white text-sm">Expected 5G Improvements</h2>
+                <TrendingUp size={16} className="text-indigo-500" />
+                <h2 className="font-semibold text-slate-700 text-sm">Expected 5G Improvements</h2>
               </div>
-              <p className="text-xs text-slate-500 mb-4">Auto-set for your industry. Adjust as needed.</p>
+              <p className="text-xs text-slate-400 mb-4">Auto-set for your industry. Adjust as needed.</p>
               <div className="space-y-5">
                 <SliderInput label="Productivity Gain" value={inputs.productivityGain} onChange={set('productivityGain')} min={0} max={50} />
                 <SliderInput label="Downtime Reduction" value={inputs.downtimeReduction} onChange={set('downtimeReduction')} min={0} max={100} />
@@ -320,16 +322,16 @@ export default function Calculator() {
                 </div>
 
                 {/* Tabs */}
-                <div className="card glow-border">
-                  <div className="flex gap-1 mb-5 bg-[#0f0f1a] rounded-xl p-1">
+                <div className="card glow-border bg-white">
+                  <div className="flex gap-1 mb-5 bg-slate-100 rounded-xl p-1">
                     {(['overview','breakdown','projection'] as const).map(tab => (
                       <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
                         className={`flex-1 py-2 text-xs font-medium rounded-lg capitalize transition-all ${
                           activeTab === tab
-                            ? 'bg-indigo-600 text-white shadow'
-                            : 'text-slate-400 hover:text-white'
+                            ? 'bg-white text-indigo-600 shadow-sm font-semibold'
+                            : 'text-slate-500 hover:text-slate-700'
                         }`}
                       >
                         {tab}
@@ -342,24 +344,24 @@ export default function Calculator() {
                     <div className="space-y-5 animate-fade-in">
                       <div className="grid grid-cols-2 gap-3">
                         {[
-                          { label: 'Productivity Gain', value: results.annualProductivityGain, color: '#6366f1' },
-                          { label: 'Downtime Savings', value: results.annualDowntimeSavings, color: '#34d399' },
-                          { label: 'IoT Efficiency', value: results.annualIoTSavings, color: '#f59e0b' },
-                          { label: 'New Revenue', value: results.annualNewRevenue, color: '#f43f5e' },
+                          { label: 'Productivity Gain', value: results.annualProductivityGain, color: '#6366f1', bg: 'bg-indigo-50' },
+                          { label: 'Downtime Savings', value: results.annualDowntimeSavings, color: '#10b981', bg: 'bg-emerald-50' },
+                          { label: 'IoT Efficiency', value: results.annualIoTSavings, color: '#f59e0b', bg: 'bg-amber-50' },
+                          { label: 'New Revenue', value: results.annualNewRevenue, color: '#f43f5e', bg: 'bg-rose-50' },
                         ].map(item => (
-                          <div key={item.label} className="bg-[#0f0f1a] rounded-xl p-3">
+                          <div key={item.label} className={`${item.bg} rounded-xl p-3 border border-slate-100`}>
                             <div className="flex items-center gap-2 mb-1">
                               <div className="w-2 h-2 rounded-full" style={{ background: item.color }} />
-                              <span className="text-xs text-slate-400">{item.label}</span>
+                              <span className="text-xs text-slate-500">{item.label}</span>
                             </div>
-                            <div className="text-xl font-bold text-white">{formatCurrency(item.value)}</div>
-                            <div className="text-xs text-slate-600">per year</div>
+                            <div className="text-xl font-bold text-slate-800">{formatCurrency(item.value)}</div>
+                            <div className="text-xs text-slate-400">per year</div>
                           </div>
                         ))}
                       </div>
 
                       <div>
-                        <p className="text-xs text-slate-500 mb-3">Annual Benefit Distribution</p>
+                        <p className="text-xs text-slate-400 mb-3">Annual Benefit Distribution</p>
                         <div className="h-52">
                           <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
@@ -367,20 +369,20 @@ export default function Calculator() {
                                 {pieData.map((_, i) => <Cell key={i} fill={PIE_COLORS[i]} />)}
                               </Pie>
                               <Tooltip content={<CustomTooltip />} />
-                              <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '11px', color: '#94a3b8' }} />
+                              <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '11px', color: '#64748b' }} />
                             </PieChart>
                           </ResponsiveContainer>
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-3 pt-2 border-t border-[#2a2a45]">
+                      <div className="grid grid-cols-2 gap-3 pt-2 border-t border-slate-100">
                         <div className="text-center">
-                          <div className="text-xs text-slate-500 mb-1">Total Investment (5yr)</div>
-                          <div className="text-xl font-bold text-rose-400">{formatCurrency(results.totalInvestment)}</div>
+                          <div className="text-xs text-slate-400 mb-1">Total Investment (5yr)</div>
+                          <div className="text-xl font-bold text-rose-500">{formatCurrency(results.totalInvestment)}</div>
                         </div>
                         <div className="text-center">
-                          <div className="text-xs text-slate-500 mb-1">Net Present Value</div>
-                          <div className={`text-xl font-bold ${results.netPresentValue > 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                          <div className="text-xs text-slate-400 mb-1">Net Present Value</div>
+                          <div className={`text-xl font-bold ${results.netPresentValue > 0 ? 'text-emerald-600' : 'text-rose-500'}`}>
                             {formatCurrency(results.netPresentValue)}
                           </div>
                         </div>
@@ -391,15 +393,15 @@ export default function Calculator() {
                   {/* Breakdown Tab */}
                   {activeTab === 'breakdown' && (
                     <div className="animate-fade-in">
-                      <p className="text-xs text-slate-500 mb-4">Annual benefit vs. cost breakdown per year</p>
+                      <p className="text-xs text-slate-400 mb-4">Annual benefit vs. cost breakdown per year</p>
                       <div className="h-72">
                         <ResponsiveContainer width="100%" height="100%">
                           <BarChart data={results.yearlyProjection} barGap={4}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#1e1e38" />
-                            <XAxis dataKey="year" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-                            <YAxis tickFormatter={v => formatCurrency(v)} tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} width={70} />
+                            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                            <XAxis dataKey="year" tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} tickLine={false} />
+                            <YAxis tickFormatter={v => formatCurrency(v)} tick={{ fill: '#94a3b8', fontSize: 10 }} axisLine={false} tickLine={false} width={70} />
                             <Tooltip content={<CustomTooltip />} />
-                            <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '11px', color: '#94a3b8' }} />
+                            <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '11px', color: '#64748b' }} />
                             <Bar dataKey="benefit" name="Annual Benefit" fill="#6366f1" radius={[4,4,0,0]} />
                             <Bar dataKey="cost" name="Annual Cost" fill="#f43f5e" radius={[4,4,0,0]} />
                           </BarChart>
@@ -407,11 +409,11 @@ export default function Calculator() {
                       </div>
                       <div className="mt-4 space-y-2">
                         {results.yearlyProjection.map(y => (
-                          <div key={y.year} className="flex items-center justify-between bg-[#0f0f1a] rounded-xl px-4 py-2.5">
-                            <span className="text-xs font-medium text-slate-400">{y.year}</span>
-                            <span className="text-xs text-emerald-400">+{formatCurrency(y.benefit)}</span>
-                            <span className="text-xs text-rose-400">-{formatCurrency(y.cost)}</span>
-                            <span className={`text-xs font-bold ${y.netValue > 0 ? 'text-white' : 'text-rose-400'}`}>
+                          <div key={y.year} className="flex items-center justify-between bg-slate-50 rounded-xl px-4 py-2.5 border border-slate-100">
+                            <span className="text-xs font-medium text-slate-500">{y.year}</span>
+                            <span className="text-xs text-emerald-600 font-medium">+{formatCurrency(y.benefit)}</span>
+                            <span className="text-xs text-rose-500 font-medium">-{formatCurrency(y.cost)}</span>
+                            <span className={`text-xs font-bold ${y.netValue > 0 ? 'text-slate-800' : 'text-rose-500'}`}>
                               Net: {formatCurrency(y.netValue)}
                             </span>
                           </div>
@@ -423,34 +425,34 @@ export default function Calculator() {
                   {/* Projection Tab */}
                   {activeTab === 'projection' && (
                     <div className="animate-fade-in">
-                      <p className="text-xs text-slate-500 mb-4">Cumulative 5-year benefit vs. investment curve</p>
+                      <p className="text-xs text-slate-400 mb-4">Cumulative 5-year benefit vs. investment curve</p>
                       <div className="h-72">
                         <ResponsiveContainer width="100%" height="100%">
                           <AreaChart data={results.yearlyProjection}>
                             <defs>
                               <linearGradient id="benefitGrad" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
+                                <stop offset="5%" stopColor="#6366f1" stopOpacity={0.15} />
                                 <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
                               </linearGradient>
                               <linearGradient id="costGrad" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.2} />
+                                <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.1} />
                                 <stop offset="95%" stopColor="#f43f5e" stopOpacity={0} />
                               </linearGradient>
                             </defs>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#1e1e38" />
-                            <XAxis dataKey="year" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-                            <YAxis tickFormatter={v => formatCurrency(v)} tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} width={70} />
+                            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                            <XAxis dataKey="year" tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} tickLine={false} />
+                            <YAxis tickFormatter={v => formatCurrency(v)} tick={{ fill: '#94a3b8', fontSize: 10 }} axisLine={false} tickLine={false} width={70} />
                             <Tooltip content={<CustomTooltip />} />
-                            <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '11px', color: '#94a3b8' }} />
+                            <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '11px', color: '#64748b' }} />
                             <Area type="monotone" dataKey="cumulativeBenefit" name="Cumulative Benefit" stroke="#6366f1" strokeWidth={2} fill="url(#benefitGrad)" />
                             <Area type="monotone" dataKey="cumulativeCost" name="Cumulative Cost" stroke="#f43f5e" strokeWidth={2} fill="url(#costGrad)" />
                           </AreaChart>
                         </ResponsiveContainer>
                       </div>
                       {results.paybackMonths <= 60 && (
-                        <div className="mt-4 flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3">
-                          <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
-                          <p className="text-xs text-emerald-300">
+                        <div className="mt-4 flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
+                          <CheckCircle2 size={16} className="text-emerald-500 shrink-0" />
+                          <p className="text-xs text-emerald-700">
                             Break-even point at <span className="font-bold">{results.paybackMonths} months</span>. After that, every month generates pure net profit.
                           </p>
                         </div>
@@ -460,10 +462,10 @@ export default function Calculator() {
                 </div>
 
                 {/* Investment Summary */}
-                <div className="card glow-border">
+                <div className="card glow-border bg-white">
                   <div className="flex items-center gap-2 mb-4">
-                    <Layers size={16} className="text-indigo-400" />
-                    <h3 className="font-semibold text-white text-sm">Investment Summary</h3>
+                    <Layers size={16} className="text-indigo-500" />
+                    <h3 className="font-semibold text-slate-700 text-sm">Investment Summary</h3>
                   </div>
                   <div className="space-y-2.5">
                     {[
@@ -474,16 +476,16 @@ export default function Calculator() {
                       { label: 'IoT Efficiency Savings', value: results.annualIoTSavings * 5 },
                       { label: 'New Revenue (5yr)', value: results.annualNewRevenue * 5 },
                     ].map(row => (
-                      <div key={row.label} className="flex items-center justify-between py-1.5 border-b border-[#1e1e38] last:border-0">
-                        <span className="text-xs text-slate-400">{row.label}</span>
-                        <span className={`text-sm font-semibold ${row.neg ? 'text-rose-400' : 'text-emerald-400'}`}>
+                      <div key={row.label} className="flex items-center justify-between py-1.5 border-b border-slate-100 last:border-0">
+                        <span className="text-xs text-slate-500">{row.label}</span>
+                        <span className={`text-sm font-semibold ${row.neg ? 'text-rose-500' : 'text-emerald-600'}`}>
                           {row.neg ? '-' : '+'}{formatCurrency(row.value)}
                         </span>
                       </div>
                     ))}
                     <div className="flex items-center justify-between pt-3">
-                      <span className="text-sm font-bold text-white">5-Year Net Benefit</span>
-                      <span className={`text-lg font-bold ${results.fiveYearNetBenefit > 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                      <span className="text-sm font-bold text-slate-700">5-Year Net Benefit</span>
+                      <span className={`text-lg font-bold ${results.fiveYearNetBenefit > 0 ? 'text-emerald-600' : 'text-rose-500'}`}>
                         {results.fiveYearNetBenefit > 0 ? '+' : ''}{formatCurrency(results.fiveYearNetBenefit)}
                       </span>
                     </div>
@@ -491,7 +493,7 @@ export default function Calculator() {
                 </div>
               </>
             ) : (
-              <div className="flex items-center justify-center h-64 text-slate-500">
+              <div className="flex items-center justify-center h-64 text-slate-400">
                 <div className="text-center">
                   <Activity size={32} className="mx-auto mb-3 opacity-30" />
                   <p className="text-sm">Fill in the details to see your ROI analysis</p>
@@ -503,8 +505,8 @@ export default function Calculator() {
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-[#2a2a45] py-8 px-4 text-center">
-        <p className="text-xs text-slate-600">
+      <footer className="border-t border-slate-200 py-8 px-4 text-center bg-white">
+        <p className="text-xs text-slate-400">
           © {new Date().getFullYear()} DappleSoft · 5G ROI Calculator ·
           <span className="ml-1">Results are estimates based on industry averages. Actual ROI may vary.</span>
         </p>

@@ -26,8 +26,9 @@ jobs:
 
             cd ${{ secrets.DEPLOY_PATH }}
 
-            echo "📦 Pulling latest code..."
-            git pull origin main
+            echo "📦 Syncing latest code from main..."
+            git fetch origin
+            git reset --hard origin/main
 
             echo "🔨 Building Docker image..."
             docker compose build --no-cache
@@ -36,12 +37,12 @@ jobs:
             docker compose up -d
 
             echo "⏳ Waiting for container to be ready..."
-            sleep 5
+            sleep 8
 
             echo "🩺 Health check..."
             STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:9097/)
             if [ "$STATUS" = "200" ]; then
-              echo "✅ Deployment successful! HTTP $STATUS"
+              echo "✅ Deployment successful! Site live at https://5groicalculator.dapplesoft.com"
             else
               echo "❌ Health check failed! HTTP $STATUS"
               docker compose logs --tail=50
@@ -50,10 +51,8 @@ jobs:
 
       - name: Notify success
         if: success()
-        run: |
-          echo "🎉 Deployed successfully to https://5groicalculator.dapplesoft.com"
+        run: echo "🎉 Deployed to https://5groicalculator.dapplesoft.com"
 
       - name: Notify failure
         if: failure()
-        run: |
-          echo "💥 Deployment failed! Check logs above."
+        run: echo "💥 Deployment failed — check logs above."
